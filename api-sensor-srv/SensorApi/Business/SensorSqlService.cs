@@ -44,18 +44,14 @@ namespace SensorApi.Business
         public IQueryable<Sensor> GetAll(PagedRequest request)
         {
             IQueryable<Sensor> query = _db.Sensors;
-
             // Apply search filter if provided in the request
             if (!string.IsNullOrEmpty(request.Search))
             {
                 query = query.Where(m =>
-                    m.Name.Contains(request.Search, StringComparison.CurrentCultureIgnoreCase) ||
-                    m.Location.Contains(request.Search, StringComparison.CurrentCultureIgnoreCase));
+                    m.Name.ToLower().Contains(request.Search.ToLower()) ||
+                    m.Location.ToLower().Contains(request.Search.ToLower())
+                );
             }
-            query = request.Order == OrderType.Asc
-                ? query.OrderBy(n => n.CreateDate)
-                : query.OrderByDescending(n => n.CreateDate);
-
             return query; // Return the filtered query
         }
 
