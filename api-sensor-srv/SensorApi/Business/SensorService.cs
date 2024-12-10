@@ -43,25 +43,29 @@ public class SensorService : ISensorService
         }
 
         // Map the request data to sensor entities
-        var sensors = request.requests.Select(r => new Sensor
+        var sensors = request.requests.Select(r =>
         {
-            Id = r.Id,
-            Name = r.Name,                       // Sensor name
-            Location = r.Location,               // Sensor location
-            MinValue = r.MinValue,               // Minimum sensor value
-            MaxValue = r.MaxValue,               // Maximum sensor value
-            CurrentValue = r.CurrentValue,       // Current value reading
-            CreateDate = DateTime.UtcNow,        // Set the creation date to current UTC time
-            UpdateDate = null,                   // Initially, no update date is set
-            Status = r.Status,                   // Sensor status
-            IsSync = false,                      // Initially set IsSync to false (not synchronized)
+            // Check if the ID exists in the database
+            bool idExists = _db.Sensors.Any(sensor => sensor.Id == r.Id);
+
+            // If the ID exists, generate a new GUID
+            return new Sensor
+            {
+                Id = idExists ? Guid.NewGuid() : r.Id,
+                Name = r.Name,                       // Sensor name
+                Location = r.Location,               // Sensor location
+                MinValue = r.MinValue,               // Minimum sensor value
+                MaxValue = r.MaxValue,               // Maximum sensor value
+                CurrentValue = r.CurrentValue,       // Current value reading
+                CreateDate = DateTime.UtcNow,        // Set the creation date to current UTC time
+                UpdateDate = null,                   // Initially, no update date is set
+                Status = r.Status,                   // Sensor status
+                IsSync = false,                      // Initially set IsSync to false (not synchronized)
+            };
         }).ToArray();
 
         // Add the sensors to the database context
         _db.Sensors.AddRange(sensors);
-
-        // Save changes to the database asynchronously
-        await _db.SaveChangesAsync();
 
         // Return the added sensors
         return sensors;
