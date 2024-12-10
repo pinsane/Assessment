@@ -1,0 +1,48 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - web_sensor_app</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/web_sensor_app.styles.css" asp-append-version="true" />
+    <style>
+        /* Custom header styles */
+        header {
+            background-color: #64a6ed; /* A cooler blue color for the header */
+            color: white; /* White text color */
+        }
+
+        .navbar-brand {
+            font-size: 2rem; /* Make the 'Sensor App' text bigger */
+            font-weight: bold;
+        }
+
+        .navbar {
+            padding: 10px 0; /* Add some padding for a better appearance */
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm  border-bottom box-shadow mb-3">
+            <div class="container-fluid justify-content-center">
+                <!-- Center-align navbar content and apply custom styles -->
+                <a class="navbar-brand" href="/">Sensor App</a>
+            </div>
+        </nav>
+    </header>
+    
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

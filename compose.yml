@@ -1,0 +1,85 @@
+version: '3.7'
+services:
+  web:
+    build:
+      context: ./web-sensor-app
+    depends_on:
+      api:
+        condition: service_started
+        restart: true
+    environment:
+      - ServiceEndpoints__Sensors=http://api:80  
+      - ASPNETCORE_ENVIRONMENT=Development 
+    ports:
+      - "50002:80"
+    networks:
+      - app-network
+  api:
+    container_name: api
+    build:
+      context: ./api-sensor-srv/SensorApi
+    depends_on:
+      mariadb:
+        condition: service_started
+        restart: true
+      rabbitmq:
+        condition: service_started
+        restart: true
+      db:
+        condition: service_started
+        restart: true
+    environment:
+      - ConnectionStrings__MariaDb=Server=mariadb;Database=mydatabase;Port=3306;User=root;Password=rootpassword;
+      - ConnectionStrings__SqlDb=Server=db,1433;Initial Catalog=SensorDb;Persist Security Info=True;User=sa;Password=Ti6collegato!;TrustServerCertificate=True;
+      - Rabitmq__Host=rabbitmq
+      - Rabitmq__VirtualHost=/
+      - Rabitmq__UserName=guest
+      - Rabitmq__PassWord=guest
+    ports:
+      - "50001:80"
+    networks:
+      - app-network
+  db:
+    image: mcr.microsoft.com/azure-sql-edge
+    cap_add: [ 'SYS_PTRACE' ]
+    container_name: db
+    networks:
+      - app-network
+    environment:
+      MSSQL_SA_PASSWORD: "Ti6collegato!"
+      ACCEPT_EULA: "1"
+    ports:
+      - 1433:1433
+    restart: always
+    volumes:
+      - azure-sql-edge-data:/var/opt/mssql
+  mariadb:
+    image: mariadb:11.4
+    container_name: mariadb
+    restart: always
+    environment:
+      MARIADB_ROOT_PASSWORD: rootpassword
+      MARIADB_DATABASE: mydatabase
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    networks:
+      - app-network
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    networks:
+      - app-network
+volumes:
+  mariadb_data:
+  azure-sql-edge-data:
+networks:
+  app-network:
+    driver: bridge
